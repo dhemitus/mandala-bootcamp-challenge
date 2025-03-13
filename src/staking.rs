@@ -16,32 +16,53 @@ pub struct StakingPallet<T: StakingConfig> {
 
 impl<T: StakingConfig> StakingPallet<T> {
     pub fn new() -> Self {
-        todo!()
+        Self { 
+            free_balances: HashMap::new(),
+            staked_balances: HashMap::new()
+        }
     }
 
     // Set free balance for an account
     pub fn set_balance(&mut self, who: T::AccountId, amount: T::Balance) {
-        todo!()
+        self.free_balances.insert(who.clone(), amount);
     }
 
     // Stake tokens (move from free to staked)
     pub fn stake(&mut self, who: T::AccountId, amount: T::Balance) -> Result<(), &'static str> {
-        todo!()
+        let free_balance = self.get_free_balance(who.clone());
+        let staked_balance = self.get_staked_balance(who.clone());
+
+        let new_free_balance = free_balance.checked_sub(&amount).ok_or("not enough funds")?;
+        let new_staked_balance = staked_balance.checked_add(&amount).ok_or("overflow")?;
+
+        self.free_balances.insert(who.clone(), new_free_balance);
+        self.staked_balances.insert(who.clone(), new_staked_balance);
+
+        Ok(())
     }
 
     // Unstake tokens (move from staked to free)
     pub fn unstake(&mut self, who: T::AccountId, amount: T::Balance) -> Result<(), &'static str> {
-        todo!()
+        let staked_balance = self.get_staked_balance(who.clone());
+        let free_balance = self.get_free_balance(who.clone());
+
+        let new_staked_balance = staked_balance.checked_sub(&amount).ok_or("not enough funds")?;
+        let new_free_balance = free_balance.checked_add(&amount).ok_or("overvlow")?;
+
+        self.free_balances.insert(who.clone(), new_free_balance);
+        self.staked_balances.insert(who.clone(), new_staked_balance);
+
+        Ok(())
     }
 
     // Get free balance for an account
     pub fn get_free_balance(&self, who: T::AccountId) -> T::Balance {
-        todo!()
+        *self.free_balances.get(&who).unwrap_or(&T::Balance::zero())
     }
 
     // Get staked balance for an account
     pub fn get_staked_balance(&self, who: T::AccountId) -> T::Balance {
-        todo!()
+        *self.staked_balances.get(&who).unwrap_or(&T::Balance::zero())
     }
 }
 
