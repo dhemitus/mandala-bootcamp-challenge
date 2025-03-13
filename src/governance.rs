@@ -1,8 +1,8 @@
 use crate::staking::StakingConfig;
-//use crate::system::SystemConfig;
+use crate::system::SystemConfig;
 use std::collections::HashMap;
 
-pub trait GovernanceConfig: StakingConfig {}
+pub trait GovernanceConfig: StakingConfig + SystemConfig {}
 
 pub struct Proposal {
     description: String,
