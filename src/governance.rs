@@ -1,5 +1,5 @@
 use crate::staking::StakingConfig;
-use crate::system::SystemConfig;
+//use crate::system::SystemConfig;
 use std::collections::HashMap;
 
 pub trait GovernanceConfig: StakingConfig {}
@@ -11,7 +11,7 @@ pub struct Proposal {
     status: ProposalStatus,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum ProposalStatus {
     Active,
     Approved,
@@ -69,6 +69,9 @@ impl<T: GovernanceConfig> GovernancePallet<T> {
         self.votes.insert((voter, proposal_id), vote_type);
         let proposal = self.get_proposal(proposal_id).expect("could not found the proposal");
 
+        if proposal.status != ProposalStatus::Active {
+            return  Err("proposal was Finalized");
+        }
         let yes_votes = if vote_type {proposal.yes_votes + 1} else {proposal.yes_votes};
         let no_votes = if !vote_type  {proposal.no_votes + 1} else {proposal.no_votes};
 
